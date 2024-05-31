@@ -1,21 +1,21 @@
 const { FieldValue } = require('@google-cloud/firestore');
 const { firestore } = require('../firebase');
 
-const collectionRef = firestore.collection('products');
+const collectionRef = firestore.collection('categories');
 
 exports.getAll = async (req, res) => {
   try {
     const snapshot = await collectionRef.get();
-    const products = snapshot.docs.map((doc) => ({
+    const categories = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     }));
     return res.status(200).json({
       status: 'success',
-      data: products,
+      data: categories,
     });
   } catch (error) {
-    console.error('Error fetching products:', error);
+    console.error('Error fetching categories:', error);
     return res.status(500).json({
       status: 'error',
       message: 'Internal Server Error',
@@ -24,47 +24,22 @@ exports.getAll = async (req, res) => {
 };
 
 exports.create = async (req, res) => {
-  const {
-    shopId,
-    categoryId,
-    name,
-    description,
-    longdescription,
-    price,
-    stock,
-    image_url,
-  } = req.body;
+  const { name } = req.body;
+
   try {
     const docRef = await collectionRef.add({
-      shopId,
-      categoryId,
       name,
-      description,
-      longdescription,
-      price,
-      stock,
-      image_url,
       createdAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
     });
-    const newProduct = {
-      id: docRef.id,
-      shopId,
-      categoryId,
-      name,
-      description,
-      longdescription,
-      price,
-      stock,
-      image_url,
-    };
+    const newCategory = { id: docRef.id, name };
 
     return res.status(201).json({
       status: 'success',
-      data: newProduct,
+      data: newCategory,
     });
   } catch (error) {
-    console.error('Error creating product:', error);
+    console.error('Error creating category:', error);
     return res.status(500).json({
       status: 'error',
       message: 'Internal Server Error',
@@ -80,7 +55,7 @@ exports.getById = async (req, res) => {
     if (!doc.exists) {
       return res.status(404).json({
         status: 'error',
-        message: 'Product not found',
+        message: 'Category not found',
       });
     }
 
@@ -89,7 +64,7 @@ exports.getById = async (req, res) => {
       data: { id: doc.id, ...doc.data() },
     });
   } catch (error) {
-    console.error('Error fetching product:', error);
+    console.error('Error fetching category:', error);
     return res.status(500).json({
       status: 'error',
       message: 'Internal Server Error',
@@ -99,16 +74,7 @@ exports.getById = async (req, res) => {
 
 exports.update = async (req, res) => {
   const { id } = req.params;
-  const {
-    shopId,
-    categoryId,
-    name,
-    description,
-    longdescription,
-    price,
-    stock,
-    image_url,
-  } = req.body;
+  const { name } = req.body;
 
   try {
     const docRef = collectionRef.doc(id);
@@ -116,28 +82,21 @@ exports.update = async (req, res) => {
     if (!doc.exists) {
       return res.status(404).json({
         status: 'error',
-        message: 'Product not found',
+        message: 'Category not found',
       });
     }
 
     await docRef.update({
-      shopId,
-      categoryId,
       name,
-      description,
-      longdescription,
-      price,
-      stock,
-      image_url,
       updatedAt: FieldValue.serverTimestamp(),
     });
 
     return res.status(200).json({
       status: 'success',
-      message: 'Product updated successfully',
+      data: { id, name },
     });
   } catch (error) {
-    console.error('Error updating product:', error);
+    console.error('Error updating category:', error);
     return res.status(500).json({
       status: 'error',
       message: 'Internal Server Error',
@@ -154,7 +113,7 @@ exports.delete = async (req, res) => {
     if (!doc.exists) {
       return res.status(404).json({
         status: 'error',
-        message: 'Product not found',
+        message: 'Category not found',
       });
     }
 
@@ -162,10 +121,10 @@ exports.delete = async (req, res) => {
 
     return res.status(200).json({
       status: 'success',
-      message: 'Product deleted successfully',
+      message: 'Category deleted',
     });
   } catch (error) {
-    console.error('Error deleting product:', error);
+    console.error('Error deleting category:', error);
     return res.status(500).json({
       status: 'error',
       message: 'Internal Server Error',
