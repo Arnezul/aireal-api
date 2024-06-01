@@ -5,6 +5,9 @@ const userController = require('../controllers/user');
 const shopController = require('../controllers/shop');
 const categoryController = require('../controllers/category');
 const productController = require('../controllers/product');
+const cartController = require('../controllers/cart');
+const orderController = require('../controllers/order');
+
 const authMiddleware = require('../middleware/auth');
 
 router.post('/register', userController.register);
@@ -32,5 +35,11 @@ router.post('/products', authMiddleware, productController.create);
 router.get('/products/:id', authMiddleware, productController.getById);
 router.put('/products/:id', authMiddleware, productController.update);
 router.delete('/products/:id', authMiddleware, productController.delete);
+
+router.post('/cart', authMiddleware, cartController.addToCart);
+router.delete('/cart', authMiddleware, cartController.removeFromCart);
+router.get('/cart', authMiddleware, cartController.viewCart);
+
+router.post('/order', authMiddleware, orderController.placeOrder);
 
 module.exports = router;
